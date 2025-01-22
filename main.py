@@ -9,7 +9,7 @@ os.environ['GOOGLE_API_KEY'] = st.secrets['GOOGLE_API_KEY']
 
 # Create prompt template for generating tweets
 
-tweet_template = "Give me {number} tweets on {topic} in {language}"
+tweet_template = "Give me {number} tweets on {topic} in {language} "
 
 tweet_prompt = PromptTemplate(template = tweet_template, input_variables = ['number', 'topic'])
 
