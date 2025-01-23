@@ -80,6 +80,6 @@ if st.button("Generate"):
 # Footer
 # st.markdown("---")
 # st.markdown(
-#     "<div style='font-size 14px;'Powered by <a href='https://github.com/mohammadhusainmasi/myfirstaiapp/edit/main/main.py' target='_blank'mohammadhusainmasi</a>div>",
+    "<div style='font-size 14px;'Powered by <a href='https://github.com/mohammadhusainmasi/myfirstaiapp/blob/main/main.py' target='_blank'mohammadhusain masi</a>div>",
 #     unsafe_allow_html=True,
 # )
