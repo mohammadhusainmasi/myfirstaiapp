@@ -1,2 +1,2 @@
-# myfirstaiapp
-An app that generates tweets
+# firstAIapp
+this is my first repository
