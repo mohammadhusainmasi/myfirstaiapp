@@ -1,35 +1,85 @@
-# pip install --upgrade langchain langchain-google-genai-streamlit
+from dotenv import load_dotenv
 from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain import LLMChain
 from langchain import PromptTemplate
+import requests
 import streamlit as st
+from langchain_together import Together
+# from langchain_openai import ChatOpenAI
 import os
 
-# Set up API key for Google's Gemini model
-os.environ['GOOGLE_API_KEY'] = "AIzaSyCWFY9B12ewA88ywgxajVbIBQn4NxusoOo"
+# Load environment variables from the .env file
+load_dotenv()
 
-# Create prompt template for generating tweets
+# Load API keys from environment variables
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+TOGETHER_API_KEY = os.getenv("TOGETHER_API_KEY")
+
+# Validate Together AI API key
+if not TOGETHER_API_KEY:
+    st.error("Together AI API key is missing. Please add it to the .env file.")
+    st.stop()
+
+# Create a prompt template for generating tweets
 tweet_template = "Give me {number} tweets on {topic} in {language}"
-
 tweet_prompt = PromptTemplate(template=tweet_template, input_variables=['number', 'topic', 'language'])
 
 # Initialize Google's Gemini model
 gemini_model = ChatGoogleGenerativeAI(model="gemini-1.5-flash-latest")
+together_model = Together(model="meta-llama/Llama-3.2-90B-Vision-Instruct-Turbo",
 
-# Create LLM chain using the prompt template and model
-tweet_chain = tweet_prompt | gemini_model
+)
+# AI model options
+ai_models = {
+    "Gemini (Google)": gemini_model,
+    "Together AI": together_model,  # Placeholder for Together AI
+}
 
-# Streamlit app UI
+# Streamlit App UI
 st.header("Tweet Generator - Mohammadhusain")
-st.subheader("🚀 Generate tweets using Generative AI")
+st.subheader("Generate tweets using Generative AI")
 
-# Inputs
+# Input for topic and number of tweets
 topic = st.text_input("Topic")
 number = st.number_input("Number of tweets", min_value=1, max_value=10, value=1, step=1)
-language = st.selectbox("Language", ["English", "Spanish", "French", "German", "Arabic", "Hindi", "marathi", "Russian", "Bengali", "Portuguese"])
 
-# Generate tweets on button click
+# Dropdown for selecting language
+language = st.selectbox("Select language for tweets", ["English", "Spanish", "French", "German", "Hindi"], index=0)
+
+# Dropdown for selecting AI model
+selected_ai = st.selectbox("Select the AI model", list(ai_models.keys()))
+
 if st.button("Generate"):
-    # Invoke the chain with user inputs
-    tweets = tweet_chain.invoke({"number": number, "topic": topic, "language": language})
-    st.write(tweets.content)
+    # Use the selected AI model
+    chosen_model = ai_models[selected_ai]
+    try:
+        # Create a prompt using the template
+        prompt = tweet_template.format(number=number, topic=topic, language=language)
+        
+        # Use the selected model to create an LLM chain
+        tweet_chain = tweet_prompt | chosen_model
+        
+        # Generate tweets
+        tweets = tweet_chain.invoke({"number": number, "topic": topic, "language": language})
+        
+        if selected_ai == "Together AI":
+            # For Together AI, handle the response as a string
+            st.success("Generated Tweets")
+            st.write(tweets)  # Directly write the string response
+        
+        elif selected_ai == "Gemini (Google)":
+            # For Google Gemini, handle the response as an object with 'content'
+            st.success("Generated Tweets")
+            st.write(tweets.content)
+        
+        else:
+            st.error("Selected AI model is not yet implemented.")
+    
+    except Exception as e:
+        st.error(f"Error generating tweets {e}")
+
+# Footer
+# st.markdown("---")
+# st.markdown(
+#     "<div style='font-size 14px;'Powered by <a href='httpsgithub.comAkbaraliNurbhanej' target='_blank'Akbarali Nurbhanej</a>div>",
+#     unsafe_allow_html=True,
+# )
