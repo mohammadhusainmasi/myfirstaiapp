@@ -1,2 +1,2 @@
 # firstAIapp
-this is mm - first repository
+mm-first repositories
